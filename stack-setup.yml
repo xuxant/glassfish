@@ -1,0 +1,52 @@
+---
+- hosts: master
+  become: yes
+  tasks:
+    - name: Install unzip module
+      yum:
+        name: unzip
+        state: present
+    
+    - name: Create User for glassfish 
+      user:
+        name: fonepay
+        password: fonepay@123
+        state: present
+        shell: /bin/bash
+
+    - name: copy java and unzip in user
+      copy:
+        src: /tmp/java.zip
+        dest: /home/fonepay/java.zip
+        owner: fonepay
+        group: fonepay
+        mode: '755'
+    
+    - name: unzip Java file in user
+      become_user: fonepay
+      unarchive:
+        src: /home/fonepay/java.zip
+        dest: /home/fonepay/.java
+
+#      command: unzip java.zip
+    
+#    - name: Hide jdk files
+#      become_user: fonepay
+#      command: mv java .java
+
+    - name: Adding the path in the bashrc files
+      lineinfile: dest=/home/fonepay/.bash_profile line='export PATH=$PATH:/home/fonepay/.java/bin' insertafter='EOF' regexp='export PATH=\$PATH:/home/fonepay/.java/bin' state=present
+
+    - name: copy glassfish to fonepay user
+      copy:
+        src: /tmp/glassfish-4.1.2.zip
+        dest: /home/fonepay/glassfish-4.1.2.zip
+        owner: fonepay
+        group: fonepay
+        mode: '755'
+
+    - name: Unzip glassfish 
+      become_user: fonepay
+      unarchive:
+        src: /home/fonepay/glassfish-4.1.2.zip
+        dest: /home/fonepay/glassfish4

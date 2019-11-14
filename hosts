@@ -1,0 +1,5 @@
+[master]
+master ansible_host=fonepay connection=local ansible_user=root ansible_password=centos ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+
+[fonepay]
+master ansible_host=fonepay ansible_user=fonepay ansible_password=fonepay@123 ansible_ssh_common_args='-o StrictHostKeyChecking=no'

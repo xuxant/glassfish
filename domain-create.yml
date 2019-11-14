@@ -1,0 +1,40 @@
+---
+- hosts: master
+  remote_user: fonepay
+  tasks:
+
+    - name: Create domain for admin with portbase 2000
+      become_user: fonepay
+      shell: . /home/fonepay/.bash_profile && glassfish4/bin/asadmin create-domain --portbase 2000 --user admin --passwordfile glassfish4/password admin 
+
+    - name: Enable secure login for admin
+      become_user: fonepay
+      shell: . /home/fonepay/.bash_profile && glassfish4/bin/asadmin start-domain admin && glassfish4/bin/asadmin --user admin --passwordfile glassfish4/password --host localhost --port 2048 enable-secure-admin
+    
+    - name: Add connection pool to admin domain
+      become_user: fonepay
+      shell: . /home/fonepay/.bash_profile && glassfish4/bin/asadmin start-domain admin && glassfish4/bin/asadmin create-jdbc-connection-pool --user admin --passwordfile glassfish4/password --port 2048 --datasourceclassname com.mysql.jdbc.jdbc2.optional.MysqlDataSource --restype javax.sql.DataSource --property UserName=root:Port=3306:Password=f1s0ft@123:DatabaseName=FONEPAY_UAT:ServerName=10.13.194.238 merchant-admin-pool
+
+    - name: Add connection pool to admin domain
+      become_user: fonepay
+      shell: . /home/fonepay/.bash_profile && glassfish4/bin/asadmin start-domain admin && glassfish4/bin/asadmin create-jdbc-connection-pool --user admin --passwordfile glassfish4/password --port 2048 --datasourceclassname com.mysql.jdbc.jdbc2.optional.MysqlDataSource --restype javax.sql.DataSource --property UserName=ibank:Port=3306:Password=ibank:DatabaseName=CONVERGENT_UAT:ServerName=10.13.194.238 jdbc/convergentDb
+    
+    - name: Add resource for client-reconsile to admin domain
+      become_user: fonepay
+      shell: . /home/fonepay/.bash_profile && glassfish4/bin/asadmin start-domain admin && glassfish4/bin/asadmin create-jdbc-resource --port 2048 --user admin --passwordfile glassfish4/password --connectionpoolid jdbc/convergentDb client-reconcile
+
+    - name: Add resource for merchant-site-admin to admin domain
+      become_user: fonepay
+      shell: . /home/fonepay/.bash_profile && glassfish4/bin/asadmin start-domain admin && glassfish4/bin/asadmin create-jdbc-resource --port 2048 --user admin --passwordfile glassfish4/password --connectionpoolid merchant-admin-pool merchant-site-admin
+
+    - name: Add slave-convergent to admin domain
+      become_user: fonepay
+      shell: . /home/fonepay/.bash_profile && glassfish4/bin/asadmin start-domain admin && glassfish4/bin/asadmin create-jdbc-resource --port 2048 --user admin --passwordfile glassfish4/password --connectionpoolid jdbc/convergentDb slave-convergent
+
+    - name: Add jdbc/convergent resource pool to admin domain
+      become_user: fonepay
+      shell: . /home/fonepay/.bash_profile && glassfish4/bin/asadmin start-domain admin && glassfish4/bin/asadmin create-jdbc-resource --port 2048 --user admin --passwordfile glassfish4/password --connectionpoolid jdbc/convergentDb jdbc/convergent
+    
+    - name: Add fonepayMerchant to admin domain
+      become_user: fonepay
+      shell: . /home/fonepay/.bash_profile && glassfish4/bin/asadmin start-domain admin && glassfish4/bin/asadmin create-jdbc-resource --port 2048 --user admin --passwordfile glassfish4/password --connectionpoolid merchant-admin-pool fonepayMerchant
